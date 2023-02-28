@@ -8,10 +8,11 @@
 import SwiftUI
 
 struct ContentView: View {
-    @State private var lowerIP = "1.1.1.1"
-    @State private var upperIP = "1.1.1.9"
-    @State private var results = [String]()
-    @State private var selectedOption = 0
+    @State private var lowerIP: String = "1.1.1.1"
+    @State private var upperIP: String = "255.255.255.255"
+    @State private var results: [String] = []
+    @State private var selectedOption: Int = 0
+    @State private var ipsToScan: [String] = []
     
     var filteredResults: [String] {
         switch selectedOption {
@@ -44,6 +45,8 @@ struct ContentView: View {
             
             Button("Scan") {
                 results.removeAll()
+                explodeRangeofIPV4s(lowerBounds: lowerIP, upperBounds: upperIP)
+                print(ipsToScan)
                 scan()
             }
             .padding()
@@ -65,14 +68,10 @@ struct ContentView: View {
         .padding()
     }
     
+    
     func scan() {
-        let lowerBound = ipToNumber(lowerIP)
-        let upperBound = ipToNumber(upperIP)
-        
-        for ipNumber in lowerBound...upperBound {
-            let ip = numberToIP(ipNumber)
+        for ip in ipsToScan {
             let url = URL(string: "http://\(ip)")!
-            
             URLSession.shared.dataTask(with: url) { data, response, error in
                 if let httpResponse = response as? HTTPURLResponse {
                     let statusCode = httpResponse.statusCode
@@ -85,17 +84,32 @@ struct ContentView: View {
         }
     }
     
-    func ipToNumber(_ ip: String) -> Int {
-        let octets = ip.components(separatedBy: ".").compactMap { Int($0) }
-        return (octets[0] << 24) | (octets[1] << 16) | (octets[2] << 8) | octets[3]
+    func explodeRangeofIPV4s(lowerBounds: String, upperBounds: String) {
+        var arrayOfIPV4Addresses: [String] = []
+        for ip in stride(from:ipv4StringToInt(stringOfIPV4Address: lowerBounds), through: ipv4StringToInt(stringOfIPV4Address: upperBounds), by: 1) {
+            arrayOfIPV4Addresses.append(ipv4IntToString(integer: ip))
+        }
+        self.ipsToScan = arrayOfIPV4Addresses
     }
     
-    func numberToIP(_ number: Int) -> String {
-        let octet1 = (number >> 24) & 0xff
-        let octet2 = (number >> 16) & 0xff
-        let octet3 = (number >> 8) & 0xff
-        let octet4 = number & 0xff
-        return "\(octet1).\(octet2).\(octet3).\(octet4)"
+    func ipv4IntToString(integer: Int) -> String {
+        // int >> 24 performs a bitwise shift 24 places to the right
+        // & 0xFF is a bitwise AND, and 0xFF in hex is 255 in decimal
+        let section1 = String((integer >> 24) & 0xFF)
+        let section2 = String((integer >> 16) & 0xFF)
+        let section3 = String((integer >> 8) & 0xFF)
+        let section4 = String((integer >> 0) & 0xFF)
+        return section1 + "." + section2 + "." + section3 + "." + section4
+    }
+    
+    func ipv4StringToInt(stringOfIPV4Address: String) -> Int {
+        let arrayOfIntegers: [Int] = stringOfIPV4Address.split(separator: ".").map({Int($0)!})
+        var integer: Int = 0
+        for i in stride(from:3, through:0, by:-1) {
+            // if ipv4 address does not contain 4 sections, you end up here with "Fatal error: Index out of range"
+            integer += arrayOfIntegers[3-i] << (i * 8)
+        }
+        return integer
     }
 }
 
