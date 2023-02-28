@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		A306F42A29ADE5B700FBD8B0 /* WebView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A306F42929ADE5B700FBD8B0 /* WebView.swift */; };
 		A316C53C29ACC40500A05CEC /* BetaWebKitScannerApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = A316C53B29ACC40500A05CEC /* BetaWebKitScannerApp.swift */; };
 		A316C53E29ACC40500A05CEC /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A316C53D29ACC40500A05CEC /* ContentView.swift */; };
 		A316C54029ACC40600A05CEC /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = A316C53F29ACC40600A05CEC /* Assets.xcassets */; };
@@ -14,6 +15,7 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		A306F42929ADE5B700FBD8B0 /* WebView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WebView.swift; sourceTree = "<group>"; };
 		A316C53829ACC40500A05CEC /* BetaWebKitScanner.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = BetaWebKitScanner.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		A316C53B29ACC40500A05CEC /* BetaWebKitScannerApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BetaWebKitScannerApp.swift; sourceTree = "<group>"; };
 		A316C53D29ACC40500A05CEC /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
@@ -53,6 +55,7 @@
 			children = (
 				A316C53B29ACC40500A05CEC /* BetaWebKitScannerApp.swift */,
 				A316C53D29ACC40500A05CEC /* ContentView.swift */,
+				A306F42929ADE5B700FBD8B0 /* WebView.swift */,
 				A316C53F29ACC40600A05CEC /* Assets.xcassets */,
 				A316C54129ACC40600A05CEC /* Preview Content */,
 			);
@@ -137,6 +140,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				A306F42A29ADE5B700FBD8B0 /* WebView.swift in Sources */,
 				A316C53E29ACC40500A05CEC /* ContentView.swift in Sources */,
 				A316C53C29ACC40500A05CEC /* BetaWebKitScannerApp.swift in Sources */,
 			);
