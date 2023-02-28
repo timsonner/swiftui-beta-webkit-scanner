@@ -6,39 +6,74 @@
 //
 
 import SwiftUI
-import Combine
 
 struct ContentView: View {
-    @State private var statusCodes: [String] = []
+    @State private var lowerIP = "1.1.1.1"
+    @State private var upperIP = "1.1.1.9"
+    @State private var results = [String]()
     
     var body: some View {
-        NavigationView {
-            List(statusCodes, id: \.self) { code in
-                Text(code)
+        VStack {
+            HStack {
+                Text("Lower IP")
+                TextField("Enter lower IP", text: $lowerIP)
+                    .textFieldStyle(RoundedBorderTextFieldStyle())
             }
-            .navigationBarTitle(Text("IP Scanner"))
-            .onAppear {
-                self.scanIPRange()
+            .padding()
+            
+            HStack {
+                Text("Upper IP")
+                TextField("Enter upper IP", text: $upperIP)
+                    .textFieldStyle(RoundedBorderTextFieldStyle())
             }
+            .padding()
+            
+            Button("Scan") {
+                results.removeAll()
+                scan()
+            }
+            .padding()
+            
+            List(results, id: \.self) { result in
+                Text(result)
+            }
+            
+            Spacer()
         }
+        .padding()
     }
     
-    private func scanIPRange() {
-        for i in 1...9 {
-            let ipAddress = "1.1.1.\(i)"
-            guard let url = URL(string: "http://\(ipAddress)") else {
-                continue
-            }
+    func scan() {
+        let lowerBound = ipToNumber(lowerIP)
+        let upperBound = ipToNumber(upperIP)
+        
+        for ipNumber in lowerBound...upperBound {
+            let ip = numberToIP(ipNumber)
+            let url = URL(string: "http://\(ip)")!
+            
             URLSession.shared.dataTask(with: url) { data, response, error in
-                DispatchQueue.main.async {
-                    if let httpResponse = response as? HTTPURLResponse {
-                        self.statusCodes.append("\(ipAddress): \(httpResponse.statusCode)")
-                    } else {
-                        self.statusCodes.append("\(ipAddress): Error")
+                if let httpResponse = response as? HTTPURLResponse {
+                    let statusCode = httpResponse.statusCode
+                    let result = "\(ip): \(statusCode)"
+                    DispatchQueue.main.async {
+                        results.append(result)
                     }
                 }
             }.resume()
         }
+    }
+    
+    func ipToNumber(_ ip: String) -> Int {
+        let octets = ip.components(separatedBy: ".").compactMap { Int($0) }
+        return (octets[0] << 24) | (octets[1] << 16) | (octets[2] << 8) | octets[3]
+    }
+    
+    func numberToIP(_ number: Int) -> String {
+        let octet1 = (number >> 24) & 0xff
+        let octet2 = (number >> 16) & 0xff
+        let octet3 = (number >> 8) & 0xff
+        let octet4 = number & 0xff
+        return "\(octet1).\(octet2).\(octet3).\(octet4)"
     }
 }
 
