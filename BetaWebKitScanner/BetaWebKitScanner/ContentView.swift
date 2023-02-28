@@ -11,6 +11,20 @@ struct ContentView: View {
     @State private var lowerIP = "1.1.1.1"
     @State private var upperIP = "1.1.1.9"
     @State private var results = [String]()
+    @State private var selectedOption = 0
+    
+    var filteredResults: [String] {
+        switch selectedOption {
+        case 0:
+            return results
+        case 1:
+            return results.filter { $0.hasSuffix(": 200") }
+        case 2:
+            return results.filter { !$0.hasSuffix(": 200") }
+        default:
+            return results
+        }
+    }
     
     var body: some View {
         VStack {
@@ -34,7 +48,15 @@ struct ContentView: View {
             }
             .padding()
             
-            List(results, id: \.self) { result in
+            Picker("Filter", selection: $selectedOption) {
+                Text("All").tag(0)
+                Text("200").tag(1)
+                Text("Not 200").tag(2)
+            }
+            .pickerStyle(SegmentedPickerStyle())
+            .padding()
+            
+            List(filteredResults, id: \.self) { result in
                 Text(result)
             }
             
