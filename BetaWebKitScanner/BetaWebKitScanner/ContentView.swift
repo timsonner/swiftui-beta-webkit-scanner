@@ -6,77 +6,41 @@
 //
 
 import SwiftUI
-import WebKit
-
-struct WebView: UIViewRepresentable {
-    let url: URL
-    @Binding var html: String
-    
-    func makeUIView(context: Context) -> WKWebView {
-        let webView = WKWebView()
-        webView.navigationDelegate = context.coordinator
-        webView.load(URLRequest(url: url))
-        return webView
-    }
-    
-    func updateUIView(_ webView: WKWebView, context: Context) {
-        webView.load(URLRequest(url: url))
-    }
-    
-    func makeCoordinator() -> Coordinator {
-        Coordinator(self)
-    }
-    
-    class Coordinator: NSObject, WKNavigationDelegate {
-        var parent: WebView
-        
-        init(_ parent: WebView) {
-            self.parent = parent
-        }
-        
-        func webView(_ webView: WKWebView, didFinish navigation: WKNavigation!) {
-            parent.html = ""
-            webView.evaluateJavaScript("document.documentElement.outerHTML.toString()") { (html, error) in
-                if let html = html as? String {
-                    self.parent.html = html
-                }
-            }
-        }
-    }
-}
+import Combine
 
 struct ContentView: View {
-    @State private var html = ""
-    @State private var selectedTab = 0
-    let url = URL(string: "https://www.example.com")!
+    @State private var statusCodes: [String] = []
     
     var body: some View {
-        TabView(selection: $selectedTab) {
-            WebView(url: url, html: $html)
-                .tag(0)
-                .navigationBarTitle("Site")
-                .tabItem {
-                    Image(systemName: "globe")
-                    Text("Site")
-                }
-            
-            ScrollView {
-                Text(html)
-                    .padding()
+        NavigationView {
+            List(statusCodes, id: \.self) { code in
+                Text(code)
             }
-            .tag(1)
-            .navigationBarTitle("HTML")
-            .tabItem {
-                Image(systemName: "doc.text")
-                Text("HTML")
+            .navigationBarTitle(Text("IP Scanner"))
+            .onAppear {
+                self.scanIPRange()
             }
         }
     }
+    
+    private func scanIPRange() {
+        for i in 1...9 {
+            let ipAddress = "1.1.1.\(i)"
+            guard let url = URL(string: "http://\(ipAddress)") else {
+                continue
+            }
+            URLSession.shared.dataTask(with: url) { data, response, error in
+                DispatchQueue.main.async {
+                    if let httpResponse = response as? HTTPURLResponse {
+                        self.statusCodes.append("\(ipAddress): \(httpResponse.statusCode)")
+                    } else {
+                        self.statusCodes.append("\(ipAddress): Error")
+                    }
+                }
+            }.resume()
+        }
+    }
 }
-
-
-
-
 
 struct ContentView_Previews: PreviewProvider {
     static var previews: some View {
